@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """ 3. Auth class """
 
+import re
 from flask import request
 from typing import List, TypeVar
 
@@ -14,7 +15,10 @@ class Auth():
         """ class to manage the API authentication.
         """
 
-        return False
+        if path is None or excluded_paths == [] or excluded_paths is None:
+            return True
+        if path in excluded_paths:
+            return False
 
     def authorization_header(self, request=None) -> str:
         """ public method def authorization_header
