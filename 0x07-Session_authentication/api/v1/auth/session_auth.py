@@ -4,6 +4,7 @@
 """
 from api.v1.auth.auth import Auth
 import uuid
+from models.user import User
 
 
 class SessionAuth(Auth):
@@ -29,3 +30,10 @@ class SessionAuth(Auth):
         sessions = self.__class__.user_id_by_session_id
         userId = sessions.get(session_id, None)
         return userId
+
+    def current_user(self, request=None):
+        """ instance method def current_user """
+        sessionId = self.session_cookie(request)
+        userId = self.user_id_for_session_id(sessionId)
+        user_instance = User.get(userId)
+        return user_instance
