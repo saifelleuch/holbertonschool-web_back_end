@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
+
 """DB module
 """
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.session import Session
+
 from user import Base, User
 
 
@@ -24,7 +26,6 @@ class DB:
     def _session(self) -> Session:
         """Memoized session object
         """
-
         if self.__session is None:
             DBSession = sessionmaker(bind=self._engine)
             self.__session = DBSession()
@@ -32,7 +33,6 @@ class DB:
 
     def add_user(self, email: str, hashed_password: str) -> User:
         """ save the user to the database """
-
         user = User()
         user.email = email
         user.hashed_password = hashed_password
