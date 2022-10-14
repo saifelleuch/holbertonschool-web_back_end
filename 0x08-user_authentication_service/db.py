@@ -66,7 +66,7 @@ class DB:
         database.'''
         user = self.find_user_by(id=user_id)
         for x, y in kwargs.items():
-            if x not in User.__table__.columns.keys():
+            if not hasattr(user, x):
                 raise ValueError
             else:
                 setattr(user, x, y)
