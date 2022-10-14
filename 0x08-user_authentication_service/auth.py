@@ -4,15 +4,16 @@
 """
 
 import bcrypt
+from typing import ByteString
 from db import DB
-from user import User
+from sqlalchemy.exc import InvalidRequestError
 from sqlalchemy.orm.exc import NoResultFound
+from user import User
 import uuid
 
 
 def _hash_password(password: str) -> str:
-    """
-    takes in a password string
+    """takes in a password string
     arguments and returns bytes
     """
 
@@ -38,7 +39,7 @@ class Auth:
         self._db = DB()
 
     def register_user(self, email: str, password: str) -> User:
-        """ Registre new user
+        """Registre new user
         """
         try:
             user = self._db.find_user_by(email=email)
@@ -114,7 +115,7 @@ class Auth:
             return None
 
     def get_reset_password_token(self, email: str) -> str:
-        """ It take an email string
+        """It take an email string
         argument and returns a string.
         """
 
