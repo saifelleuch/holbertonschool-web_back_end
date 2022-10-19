@@ -76,3 +76,25 @@ class TestGithubOrgClient(unittest.TestCase):
 
         self.assertEqual(GithubOrgClient.has_license(
             mapping, license_key), excepted)
+
+class TestIntegrationGithubOrgClient(unittest.TestCase):
+    """
+    TestIntegrationGithubOrgClient(unittest.TestCase) class
+    """
+    @classmethod
+    def setUpClass(cls):
+        """
+        setUpClass
+        """
+        cls.get_patcher = patch('requests.get')
+        cls.mock = cls.get_patcher.start()
+        cls.mock.return_value.json.side_effect = [
+            cls.org_payload, cls.repos_payload,
+            cls.org_payload, cls.repos_payload,
+        ]
+
+    def tearDownClass(cls):
+        """
+        tearDownClass
+        """
+        cls.get_patcher.stop()
