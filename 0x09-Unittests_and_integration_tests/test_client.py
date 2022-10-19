@@ -4,9 +4,11 @@
 """
 
 from client import GithubOrgClient
+from fixtures import TEST_PAYLOAD
+from parameterized import parameterized, parameterized_class
+import json
 import unittest
-from parameterized import parameterized
-from unittest.mock import patch, PropertyMock
+from unittest.mock import patch, PropertyMock, Mock
 
 
 class TestGithubOrgClient(unittest.TestCase):
@@ -32,6 +34,7 @@ class TestGithubOrgClient(unittest.TestCase):
             mock.assert_called_once_with(
                 f'https://api.github.com/orgs/{input}')
 
+    @parameterized.expand([('google', TEST_PAYLOAD[0][0])])
     def test_public_repos_url(self, org, expected):
         """
         test_public_repos_url method to unit-test
@@ -77,6 +80,11 @@ class TestGithubOrgClient(unittest.TestCase):
         self.assertEqual(GithubOrgClient.has_license(
             mapping, license_key), excepted)
 
+
+@parameterized_class(
+    ("org_payload", "repos_payload", "expected_repos", "apache2_repos"),
+    TEST_PAYLOAD
+)
 class TestIntegrationGithubOrgClient(unittest.TestCase):
     """
     TestIntegrationGithubOrgClient(unittest.TestCase) class
@@ -93,11 +101,19 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
             cls.org_payload, cls.repos_payload,
         ]
 
-    def tearDownClass(cls):
+    def test_public_repos(self):
+        """[implement the test_public_repos method to test
+        GithubOrgClient.public_repos.]
         """
-        tearDownClass
-        """
-        cls.get_patcher.stop()
+
+        instance = GithubOrgClient('do')
+        self.assertEqual(instance.org, self.org_payload)
+        self.assertAlmostEqual(instance._public_repos_url,
+                               'https://api.github.com/orgs/google/repos')
+        self.assertEqual(instance.repos_payload, self.repos_payload)
+        self.assertEqual(instance.public_repos(), self.expected_repos)
+        self.assertEqual(instance.public_repos("sdsd"), [])
+        self.mock.assert_called()
 
     def test_public_repos_with_license(self):
         """
@@ -113,3 +129,10 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
         self.assertEqual(instance.public_repos(
             "apache-2.0"), self.apache2_repos)
         self.mock.assert_called()
+
+    @classmethod
+    def tearDownClass(cls):
+        """
+        tearDownClass
+        """
+        cls.get_patcher.stop()
