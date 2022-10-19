@@ -32,10 +32,21 @@ class TestGithubOrgClient(unittest.TestCase):
             mock.assert_called_once_with(
                 f'https://api.github.com/orgs/{input}')
 
+    def test_public_repos_url(self, org, expected):
+        """
+        test_public_repos_url method to unit-test
+        GithubOrgClient._public_repos_url.
+        """
+        with patch('client.get_json') as mock:
+            instance = GithubOrgClient(org)
+            mock.return_value = expected
+            self.assertEqual(instance._public_repos_url, expected["repos_url"])
+
     @patch('client.get_json')
     def test_public_repos(self, mock_json):
         """
-        method to unit-test GithubOrgClient._public_repos_url
+        TestGithubOrgClient.test_public_repos to
+        unit-test GithubOrgClient.public_repos.
         """
 
         Response_payload = [{"name": "Google"}]
@@ -55,13 +66,3 @@ class TestGithubOrgClient(unittest.TestCase):
             mock_json.assert_called_once()
     p = [({"license": {"key": "my_license"}}, "my_license", True),
          ({"license": {"key": "other_license"}}, "my_license", False)]
-
-    def test_public_repos_url(self, org, expected):
-        """
-        test_public_repos_url method to unit-test
-        GithubOrgClient._public_repos_url.
-        """
-        with patch('client.get_json') as mock:
-            instance = GithubOrgClient(org)
-            mock.return_value = expected
-            self.assertEqual(instance._public_repos_url, expected["repos_url"])
