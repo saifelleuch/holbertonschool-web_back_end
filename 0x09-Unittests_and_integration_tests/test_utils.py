@@ -5,9 +5,9 @@
 import unittest
 from utils import access_nested_map, get_json, memoize
 from parameterized import parameterized
-from typing import Mapping, Sequence, Any
 from unittest.mock import patch
-from unittest.mock import MagicMock
+from unittest.mock import Mock, PropertyMock, MagicMock
+from typing import Mapping, Sequence, Any
 
 
 class TestAccessNestedMap(unittest.TestCase):
@@ -17,9 +17,9 @@ class TestAccessNestedMap(unittest.TestCase):
     """
 
     @parameterized.expand([
-        ({"a": 1}, ("a",))
-        ({"a": {"b": 2}}, ("a",))
-        ({"a": {"b": 2}}, ("a", "b"))
+        ({"a": 1}, ("a",), 1),
+        ({"a": {"b": 2}}, ("a",), {"b": 2}),
+        ({"a": {"b": 2}}, ("a", "b"), 2)
     ])
     def test_access_nested_map(self, nested_map: Mapping,
                                path: Sequence, expected: Any) -> bool:
@@ -29,10 +29,8 @@ class TestAccessNestedMap(unittest.TestCase):
         """
         self.assertEqual(access_nested_map(nested_map, path), expected)
 
-    @parameterized.expand([
-        ({}, ("a"))
-        ({"a": 1}, ("a", "b"))
-    ])
+    @parameterized.expand([({}, ("a"), KeyError), ({"a": 1},
+                                                   ("a", "b"), KeyError)])
     def test_access_nested_map_exception(self, nested_map, path, expected):
         """
         TestAccessNestedMap.test_access_nested_map_exception
@@ -41,14 +39,24 @@ class TestAccessNestedMap(unittest.TestCase):
             access_nested_map(nested_map, path)
             self.assertEqual(raises.exception.message, KeyError)
 
+
 class TestGetJson(unittest.TestCase):
     """
-    TestGetJson(unittest.TestCase) class 
+    TestGetJson(unittest.TestCase) class
     """
 
-    @parameterized.expand([("http://example.com", {"payload": True})
-                           ("http://holberton.io", {"payload": False})
-                        ])
+    def response(self, payload):
+        """
+        response
+        """
+        response_mock = Mock()
+        response_mock.json.return_value = payload
+        return response_mock
+
+    @parameterized.expand([("http://example.com", {"payload": True},
+                            {"payload": True}),
+                           ("http://holberton.io", {"payload": False},
+                            {"payload": False})])
     def test_get_json(self, url, payload, expected):
         """
         method to test that utils.get_json
@@ -59,14 +67,15 @@ class TestGetJson(unittest.TestCase):
             self.assertEqual(get_json(url), expected)
             assert mock_requests.get.call_count == 1
 
+
 class TestMemoize(unittest.TestCase):
     """
-    TestMemoize(unittest.TestCase) class 
+    TestMemoize(unittest.TestCase) class
     """
 
     def test_memoize(self):
         """
-        test_memoize method.
+        test_memoize method
         """
         class TestClass:
             """
