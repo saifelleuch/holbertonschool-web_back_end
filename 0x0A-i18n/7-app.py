@@ -4,6 +4,7 @@
 """
 from flask import Flask, render_template, request, g
 from flask_babel import Babel, gettext
+import pytz
 
 app = Flask(__name__)
 babel = Babel(app)
@@ -32,7 +33,7 @@ def root():
     """
     basic Flask app
     """
-    return render_template("6-index.html")
+    return render_template("7-index.html")
 
 
 @babel.localeselector
@@ -76,6 +77,25 @@ def before_request():
     and set it as a global on flask.g.user
     """
     g.user = get_user()
+
+
+@babel.timezoneselector
+def get_timezone():
+    """
+    function and use the babel.timezoneselector decorator.
+    """
+    localTimezone = request.args.get('timezone')
+    if localTimezone in pytz.all_timezones:
+        return localTimezone
+    else:
+        raise pytz.exceptions.UnknownTimeZoneError
+    userId = request.args.get('login_as')
+    localTimezone = users[int(userId)]['timezone']
+    if localTimezone in pytz.all_timezones:
+        return localTimezone
+    else:
+        raise pytz.exceptions.UnknownTimeZoneError
+    return app.config['BABEL_DEFAULT_TIMEZONE']
 
 
 if __name__ == "__main__":
