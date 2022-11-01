@@ -26,7 +26,7 @@ class Cache:
         self._redis = redis.Redis()
         self._redis.flushdb()
 
-    @store
+    @count_calls
     def store(self, data: Union[str, bytes, int, float]) -> str:
         """ method that takes a data argument and returns a string """
         key = str(uuid.uuid4())
@@ -39,8 +39,9 @@ class Cache:
         argument named fn. This callable will be used to
         convert the data back to the desired format."""
         data = self._redis.get(key)
-        if key is none:
+        if fn:
             return fn(data)
+        return data
 
     def get_str(self, key: str) -> str:
         """automatically parametrize Cache.get with
